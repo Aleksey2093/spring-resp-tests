@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import ru.aleksey2093.springresptests.dto.DataRowRequest;
 import ru.aleksey2093.springresptests.dto.DataRowTest;
 import ru.aleksey2093.springresptests.service.LongResponseService;
@@ -51,6 +52,23 @@ public class LongResponseController {
                 asyncContext.complete();
             }
         });
+    }
+
+
+    @GetMapping(path = "async2",
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Operation(
+            summary = "Тест длинного запроса",
+            description = "Тест длинного запроса")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Операция выполнена успешно",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = DataRowTest.class))))
+    })
+    public StreamingResponseBody asyncTest2(@RequestParam int count) {
+        return outputStream -> {
+            DataRowRequest build = DataRowRequest.builder().count(count).start(LocalDateTime.now()).build();
+            longResponseService.asyncTest(build, outputStream);
+        };
     }
 
 

@@ -1,6 +1,5 @@
 package ru.aleksey2093.springresptests.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.SneakyThrows;
@@ -38,11 +37,10 @@ public class LongResponseService {
         outputStream.write("[\n".getBytes(StandardCharsets.UTF_8));
         boolean first = true;
         for (int i = 0; i < request.getCount(); i++, start = start.plusDays(1)) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
             LocalDateTime nextDay = start.plusDays(1).atStartOfDay();
             for (LocalDateTime localTime = LocalTime.MIN.atDate(start); localTime.isBefore(nextDay);
                     localTime = localTime.plusHours(1)) {
-
                 DataRowTest dataRowTest = DataRowTest.builder()
                         .uuid(UUID.randomUUID())
                         .t1(UUID.randomUUID().getLeastSignificantBits())
@@ -60,19 +58,14 @@ public class LongResponseService {
                                     .build()
                     );
                 }
-
                 if (first) {
                     first = false;
                 } else {
                     outputStream.write("\n,\n".getBytes(StandardCharsets.UTF_8));
                 }
-
                 byte[] s = objectMapper.writeValueAsBytes(dataRowTest);
-
                 outputStream.write(s);
-
             }
-            outputStream.flush();
         }
         outputStream.write("]\n".getBytes(StandardCharsets.UTF_8));
     }
